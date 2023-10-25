@@ -222,7 +222,7 @@ export const SupercoolAuthContextProvider = (props) => {
         updateForPurchase,
         UserProfileRef,
         db,
-        walletConnected
+        walletConnected,
       }}
       {...props}
     >

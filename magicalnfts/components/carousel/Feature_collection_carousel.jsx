@@ -66,7 +66,7 @@ const Feature_collections_carousel = () => {
             <SwiperSlide key={id}>
               <article>
                 <div className="dark:bg-jacarta-700 dark:border-jacarta-700 border-jacarta-100 rounded-2xl border bg-white p-[1.1875rem] transition-shadow hover:shadow-lg">
-                  <Link 
+                  <Link
                   // href={`/item/item_${allNfts.tokenId}`}
                   >
                     <a className="flex space-x-[0.625rem]">

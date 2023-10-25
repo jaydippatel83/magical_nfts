@@ -4,7 +4,11 @@ import { useMetaMask } from "metamask-react";
 
 export default function WalletButton() {
   const dispath = useDispatch();
+  const [walletModalConfig, setWalletModalConfig] = useState(null);
   const { status, connect, account, chainId, ethereum } = useMetaMask();
+  const { buttonState, onConnect, onDisconnect, onSelectWallet } = useWalletMultiButton({
+    onSelectWallet: setWalletModalConfig,
+  });
 
   const walletHandler = () => {
     if (status === "unavailable") {

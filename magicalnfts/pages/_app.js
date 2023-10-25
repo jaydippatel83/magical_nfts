@@ -56,15 +56,13 @@ function MyApp({ Component, pageProps }) {
               <WalletModalProvider>
                 <MetaMaskProvider>
                   <SupercoolAuthContextProvider>
-                    <UserContext.Provider>
-                      {pid === "/login" ? (
+                    {pid === "/login" ? (
+                      <Component {...pageProps} />
+                    ) : (
+                      <Layout>
                         <Component {...pageProps} />
-                      ) : (
-                        <Layout>
-                          <Component {...pageProps} />
-                        </Layout>
-                      )}
-                    </UserContext.Provider>
+                      </Layout>
+                    )}
                   </SupercoolAuthContextProvider>
                 </MetaMaskProvider>
               </WalletModalProvider>

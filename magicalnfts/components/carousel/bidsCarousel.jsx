@@ -29,7 +29,6 @@ const BidsCarousel = () => {
         modules={[Navigation, Pagination, Scrollbar]}
         spaceBetween={30}
         slidesPerView="auto"
-        // loop={true}
         breakpoints={{
           240: {
             slidesPerView: 1,
