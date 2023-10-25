@@ -1,0 +1,154 @@
+.page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.wallet-adapter-button {
+    line-height: normal !important;
+}
+
+.generate-btn {
+    text-align: center !important;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.result-image img {
+    justify-content: center;
+    margin: auto;
+    border-radius: 8px;
+    height: auto;
+    width: auto;
+}
+
+.nftimg-btn {
+    text-align: center !important;
+    margin-top: 18px;
+}
+
+.create-btn {
+    text-align: center !important;
+    margin-top: 15px;
+}
+
+.main-row {
+    display: flex;
+    margin-top: 55px;
+}
+
+.main-row .img-nft {
+    padding: 0px 25px 0px 0px;
+    border: none;
+}
+
+.img-nft img {
+    /* height: 300px; */
+    border-radius: 8px;
+    border: none;
+}
+
+.main-row .radio-img {
+    text-align: center;
+    width: 100%;
+    padding: 0px 25px 0px 0px;
+
+}
+
+
+
+/* ---------------- image modal ---------------- */
+.img-overlay {
+    position: absolute;
+    top: 45%;
+    left: -43%;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.dynamic-img-overlay {
+    position: absolute;
+    top: 45%;
+    left: -16%;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.img-modal {
+    position: relative;
+    z-index: 100;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.img-modal-btn {
+    width: 100%;
+    padding: 20px;
+    border: none;
+    color: black;
+}
+
+.img-modal-btn:active {
+    background-color: #fafafc;
+}
+
+.img-container img {
+    border-radius: 6px;
+}
+
+.close-modal {
+    font-size: 10px;
+    margin: -3px 0px 3px 1px;
+}
+
+.create-nftimg-btn {
+    text-align: center !important;
+    margin-top: 8px;
+}
+
+
+/* for dropdown scroll */
+
+.categories-scroll {
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    border-radius: 10px;
+}
+
+.categories-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.categories-scroll::-webkit-scrollbar-track {
+    background-color: #ffffff;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb {
+    background-color: #2e357c;
+}
+
+
+.nft-sections {
+
+    left: calc(5% + 5px);
+    /* overflow: hidden; */
+}

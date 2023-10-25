@@ -1,1 +1,1 @@
- 
+## Magical NFTs
