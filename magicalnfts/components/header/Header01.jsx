@@ -27,7 +27,13 @@ export default function Header01() {
   async function getbalance() {
     let balance = await connection.getBalance(publicKey);
     setBalance(balance.toFixed(2) / LAMPORTS_PER_SOL);
+
   }
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   // window resize
   useEffect(() => {
     window.addEventListener("resize", () => {
@@ -191,8 +197,10 @@ export default function Header01() {
             </nav>
 
             <div className="ml-8 hidden items-center lg:flex xl:ml-12">
+              {
+                isClient && <WalletMultiButton suppressHydrationWarning />
+              }
 
-              <WalletMultiButton />
               {
                 connected &&
                 <div className="js-nav-dropdown group-dropdown relative ml-3">
