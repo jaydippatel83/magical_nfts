@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "tippy.js/dist/tippy.css"; // optional
 import Meta from "../../components/Meta";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import { GAMESETS_NFT_CONTRACT, abi } from "../../constant/constant";
 import { ethers } from "ethers";
 import { SupercoolAuthContext } from "../../context/supercoolContext";
@@ -13,6 +13,7 @@ import ImageModal from "../modal/modal";
 import RendersellNft from "../renderSellNft/renderSellNft";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 const Create = () => {
   const superCoolContext = React.useContext(SupercoolAuthContext);
   const { uploadOnIpfs, loading, provider, setLoading, GenerateNum, prompt, setPrompt, genRanImgLoding, getAllNfts, storeDataInFirebase } = superCoolContext;
@@ -29,34 +30,30 @@ const Create = () => {
   const [placeholder, setPlaceholder] = useState(
     "Search a lion with Paint Brushes painting the mona lisa painting..."
   );
+
   const [images, setImages] = React.useState([]);
   const [selectedImage, setSelectedImage] = React.useState(null);
-  const configuration = new Configuration({
-    apiKey: process.env.apiKey,
-  });
-  const openai = new OpenAIApi(configuration);
 
-  const NFT_STORAGE_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDlkNTYwMUJiOWNFOTkyQjZkYjU4OWYzMGY1NDZGMmYxODJhM0RCOTAiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY3MzM0NzIzNzMwNSwibmFtZSI6InRydXN0aWZpZWQtZnZtIn0.YDlyBmcRUT0lb2HmMzT0tS1AUY8pGNp1NHqN4xr8_fk";
 
+  const NFT_STORAGE_TOKEN = process.env.NEXT_APP_NFT_STORAGE;
   const client = new NFTStorage({ token: NFT_STORAGE_TOKEN });
 
   const generateImage = async () => {
+    const openai = new OpenAI({ apiKey: process.env.NEXT_APP_apiKey_ai, dangerouslyAllowBrowser: true });
     setGenerateLoading(true);
     setLoading(true);
 
     setPlaceholder(`Search ${prompt}...`);
     try {
-      const res = await openai.createImage({
+      const res = await openai.images.generate({
         prompt: prompt,
-        n: 1,
-        size: "256x256",
+        n: 3,
+        size: "1024x1024",
       });
       setLoading(false);
-
       let arry = [];
-      for (let i = 0; i < res.data.data.length; i++) {
-        const img_url = res.data.data[i].url;
+      for (let i = 0; i < res.data.length; i++) {
+        const img_url = res.data[i].url;
         const api = await axios.create({
           baseURL:
             "https://open-ai-enwn.onrender.com",
@@ -87,11 +84,11 @@ const Create = () => {
           image: imageFile
         });
         const imUrl = `https://ipfs.io/ipfs/${metadata.ipnft}/metadata.json`;
-
+        console.log(imUrl, "imUrl");
         const data = (await axios.get(imUrl)).data;
         const rep = data.image.replace(
           "ipfs://",
-          "https://nftstorage.link/ipfs/"
+          "https://superfun.infura-ipfs.io/ipfs/"
         );
         arry.push(rep);
       }
@@ -99,12 +96,12 @@ const Create = () => {
       setGenerateLoading(false);
 
     } catch (error) {
-      console.error(`Error generating image: ${error}`);
+      toast.error(`Error generating image: ${error}`);
       setGenerateLoading(false);
     }
   };
 
-  const mintNft = async (_price, _metadataurl,_metaData) => {
+  const mintNft = async (_price, _metadataurl, _metaData) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
 
@@ -119,7 +116,7 @@ const Create = () => {
       const receipt = await tx.wait();
 
       if (receipt.status === 1) {
-				toast("NFT Minted Sucessfully 🎉!!");
+        toast("NFT Minted Sucessfully 🎉!!");
         await storeDataInFirebase(_metaData);
       } else {
         console.log("Transaction failed:");
@@ -148,7 +145,7 @@ const Create = () => {
     const numOfNfts = await contractPro.getTotalSupply();
     return Number(numOfNfts) + 1;
   }
-// totalNfts()
+  // totalNfts()
 
   const createNft = async () => {
 
@@ -167,7 +164,7 @@ const Create = () => {
     console.log(nftData);
     setMintLoading(true);
     let metadataurl = await uploadOnIpfs(nftData);
-    await mintNft(ethers.utils.parseUnits(nftData.price?.toString(), "ether"), metadataurl,nftData);
+    await mintNft(ethers.utils.parseUnits(nftData.price?.toString(), "ether"), metadataurl, nftData);
   }
 
   function handleSelectedImg(url) {
@@ -192,7 +189,7 @@ const Create = () => {
             </div>
           </div>
           <div className="col-span-9">
-            <Meta title="SuperCool" />
+            <Meta title="MAgical NFTs" />
 
             <section className="relative py-24 nft-sections fixed">
               <picture className="pointer-events-none absolute inset-0 -z-10 dark:hidden">

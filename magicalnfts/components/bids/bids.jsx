@@ -25,11 +25,9 @@ const Bids = ({ classes = "pt-10 pb-24", bgWhite }) => {
         />
 
         <div className="relative">
-          {/* <!-- Slider --> */}
           <BidsCarousel />
         </div>
       </div>
-      {/* <!-- end hot bids --> */}
     </section>
   );
 };

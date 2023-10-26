@@ -6,44 +6,24 @@ import { SupercoolAuthContext } from "../../../context/supercoolContext";
 
 const ProfileAvatarFeatures = () => {
     const superCoolContext = React.useContext(SupercoolAuthContext);
-    const { setPrompt } = superCoolContext;
-    const [gender, setGender] = useState('gender' );
-    const [hairstyle, setHairstyle] = useState('hair style'  );
-    const [hairColor, setHairColor] = useState('hair color'  );
-    const [facialHair, setFacialHair] = useState('facial hair'  );
-    const [facialExpression, setFacialExpression] = useState('Expression' );
-    const [eyeColor, setEyeColor] = useState('eyes' );
-    const [skinTone, setSkinTone] = useState('skin tone'  );
-    const [clothingStyle, setClothingStyle] = useState('clothing style' );
-    const [accessories, setAccessories] = useState('accessories' );
-    const [imageStyle, setImageStyle] = useState('image style' );
-    const [bodyType, setBodyType] = useState('body type' );
-    const [age, setAge] = useState('age' );
-    const [ethnicity, setEthnicity] = useState('ethnicity' );
-    const [background, setBackground] = useState('background'  );
-
+    const { setPrompt, loading, generateText } = superCoolContext;
+    const [gender, setGender] = useState('gender');
+    const [hairstyle, setHairstyle] = useState('hair style');
+    const [hairColor, setHairColor] = useState('hair color');
+    const [facialHair, setFacialHair] = useState('facial hair');
+    const [facialExpression, setFacialExpression] = useState('Expression');
+    const [eyeColor, setEyeColor] = useState('eyes');
+    const [skinTone, setSkinTone] = useState('skin tone');
+    const [clothingStyle, setClothingStyle] = useState('clothing style');
+    const [accessories, setAccessories] = useState('accessories');
+    const [imageStyle, setImageStyle] = useState('image style');
+    const [bodyType, setBodyType] = useState('body type');
+    const [age, setAge] = useState('age');
+    const [ethnicity, setEthnicity] = useState('ethnicity');
+    const [background, setBackground] = useState('background');
 
     let detailPrompt = `Rewrite the prompt and add some more lines from you, giving it greater emphasis with more details, to create a profile avatar based on this information:- make sure image style will be ${imageStyle}, gender:${gender}, hair style:${hairstyle},hair color:${hairColor}${gender == "Male" ? `,facial hair:${facialHair}` : ""},facial Expression:${facialExpression},eye color:${eyeColor},skin tone:${skinTone},clothing style:${clothingStyle},accessories:${accessories},body type:${bodyType},age:${age},ethnicity:${ethnicity}, and the background of this image should be ${background} and Remember to infuse the avatar with vitality and energy`
-    const generateText = async () => {
-        try {
-            const response = await axios.post(
-                'https://api.openai.com/v1/engines/text-davinci-003/completions',
-                {
-                    prompt: detailPrompt,
-                    max_tokens: 700,
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.apiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            setPrompt(response.data.choices[0].text);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
+
 
 
     const genderOptionsText = [
@@ -473,12 +453,12 @@ const ProfileAvatarFeatures = () => {
             <div style={{
                 textAlign: "center"
             }}>
-                <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={generateText} variant="outlined" style={{
+                <button color="secondary" className="mb-5 hover:bg-accent-dark bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={() => generateText(detailPrompt)} variant="outlined" style={{
                     width: "90%",
                     fontSize: "18px",
                     border: "none",
 
-                }} >Submit</button>
+                }} >{loading ? "Generating...!" : "Generate Prompt"}</button>
             </div>
 
         </>

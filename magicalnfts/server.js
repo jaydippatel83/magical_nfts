@@ -1,23 +1,22 @@
 const express = require("express");
+require("dotenv").config({ path: 'next.config.js' });
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { Configuration, OpenAIApi } = require('openai');
+const { OpenAI } = require('openai');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 const port = 5001;
-const configuration = new Configuration({
-    apiKey: process.env.apiKey, // Replace with your OpenAI API key
-});
-const openai = new OpenAIApi(configuration);
+
+const openai = new OpenAI({ apiKey: process.env.NEXT_APP_apiKey_ai, dangerouslyAllowBrowser: true });
 
 app.post("/api", async (req, res) => {
     const { prompt } = req.body;
     try {
-        const response = await openai.createImage({
+        const response = await openai.images.generate({
             prompt: prompt,
             n: 1,
             size: "256x256",

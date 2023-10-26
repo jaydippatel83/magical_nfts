@@ -6,35 +6,15 @@ import { SupercoolAuthContext } from "../../../context/supercoolContext";
 
 const PantCostume = () => {
     const superCoolContext = React.useContext(SupercoolAuthContext);
-    const { setPrompt } = superCoolContext;
-    const [designStyle, setDesignStyle] = useState(  'design style');
-    const [pantType, setPantType] = useState( 'pant type');
-    const [pantLength, setPantLength] = useState(  'pant length');
-    const [pocketStyle, setPocketStyle] = useState( 'pocket style');
+    const { setPrompt, loading, generateText } = superCoolContext;
+    const [designStyle, setDesignStyle] = useState('design style');
+    const [pantType, setPantType] = useState('pant type');
+    const [pantLength, setPantLength] = useState('pant length');
+    const [pocketStyle, setPocketStyle] = useState('pocket style');
 
 
     let detailPrompt = `Rewrite the prompt and add some more lines from you, giving it greater emphasis with more details, to create costume Pant based on this information:- make sure image style will be ${designStyle}, pant type:${pantType}, pant length shuold be:${pantLength}, pant's pockets should be ${pocketStyle} and Remember to infuse the avatar with vitality and energy`
 
-    const generateText = async () => {
-        try {
-            const response = await axios.post(
-                'https://api.openai.com/v1/engines/text-davinci-003/completions',
-                {
-                    prompt: detailPrompt,
-                    max_tokens: 700,
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.apiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            setPrompt(response.data.choices[0].text);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
 
 
 
@@ -142,12 +122,12 @@ const PantCostume = () => {
             <div style={{
                 textAlign: "center"
             }}>
-                <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={generateText} variant="outlined" style={{
+                <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={() => generateText(detailPrompt)} variant="outlined" style={{
                     width: "90%",
                     fontSize: "18px",
                     border: "none",
 
-                }} >Submit</button>
+                }} >{loading ? "Generating...!" : "Generate Prompt"}</button>
             </div>
 
         </>

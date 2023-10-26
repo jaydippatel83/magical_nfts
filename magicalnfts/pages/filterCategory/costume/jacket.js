@@ -6,38 +6,15 @@ import { SupercoolAuthContext } from "../../../context/supercoolContext";
 const JacketCostume = () => {
 
     const superCoolContext = React.useContext(SupercoolAuthContext);
-    const { setPrompt } = superCoolContext;
-    const [designStyle, setDesignStyle] = useState( 'design style');
-    const [jacketStyle, setJacketStyle] = useState(  'jacket style');
-    const [jacketLength, setJacketLength] = useState(  'jacket length');
-    const [pocketStyle, setPocketStyle] = useState(  'pocket style');
-    const [jacketColor, setJacketColor] = useState( 'color');
-    const [jacketPattern, setJacketPattern] = useState( 'pattern');
-
-
+    const { setPrompt, loading, generateText } = superCoolContext;
+    const [designStyle, setDesignStyle] = useState('design style');
+    const [jacketStyle, setJacketStyle] = useState('jacket style');
+    const [jacketLength, setJacketLength] = useState('jacket length');
+    const [pocketStyle, setPocketStyle] = useState('pocket style');
+    const [jacketColor, setJacketColor] = useState('color');
+    const [jacketPattern, setJacketPattern] = useState('pattern');
 
     let detailPrompt = `Rewrite the prompt and add some more lines from you, giving it greater emphasis with more details, to create costume Jacket based on this information:- make sure image style will be ${designStyle}, jacket type:${jacketStyle}, jacket color:${jacketColor},jacket length:${jacketLength}$,jacket pockets should be ${pocketStyle} and there should be ${jacketPattern} pattern on jacket and Remember to infuse the avatar with vitality and energy`
-    const generateText = async () => {
-        try {
-            const response = await axios.post(
-                'https://api.openai.com/v1/engines/text-davinci-003/completions',
-                {
-                    prompt: detailPrompt,
-                    max_tokens: 700,
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.apiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            setPrompt(response.data.choices[0].text);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
-
 
 
     const designStyleOptionsText = [
@@ -210,12 +187,12 @@ const JacketCostume = () => {
                 <div style={{
                     textAlign: "center"
                 }}>
-                    <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={generateText} variant="outlined" style={{
+                    <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={() => generateText(detailPrompt)} variant="outlined" style={{
                         width: "90%",
                         fontSize: "18px",
                         border: "none",
 
-                    }} >Submit</button>
+                    }} >{loading ? "Generating...!" : "Generate Prompt"}</button>
                 </div>
 
 

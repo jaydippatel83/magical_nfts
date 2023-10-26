@@ -11,13 +11,13 @@ export const SupercoolAuthContext = createContext(undefined);
 export const SupercoolAuthContextProvider = (props) => {
 
   const [walletConnected, setWalletConnected] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [allNfts, setAllNfts] = useState([]);
   const [prompt, setPrompt] = useState("");
   const [genRanImgLoding, setGenRanImgLoding] = useState(false);
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [profileData, setProfileData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getSignerFromProvider();
@@ -177,7 +177,10 @@ export const SupercoolAuthContextProvider = (props) => {
     return ipfsURL;
   };
 
+
+
   const generateText = async (detailPrompt) => {
+    setLoading(true);
     try {
       const response = await axios.post(
         'https://api.openai.com/v1/engines/text-davinci-003/completions',
@@ -187,13 +190,15 @@ export const SupercoolAuthContextProvider = (props) => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${process.env.apiKey}`,
+            'Authorization': `Bearer ${process.env.NEXT_APP_apiKey_ai}`,
             'Content-Type': 'application/json',
           },
         }
       );
+      setLoading(false);
       setPrompt(response.data.choices[0].text);
     } catch (error) {
+      setLoading(false);
       console.error('Error:', error);
     }
   };

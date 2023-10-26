@@ -7,13 +7,13 @@ import axios from "axios";
 const CoatCostume = () => {
     const superCoolContext = React.useContext(SupercoolAuthContext);
     const { setPrompt } = superCoolContext;
-    const [designStyle, setDesignStyle] = useState( 'design style');
-    const [coatType, setCoatType] = useState( 'coat type');
-    const [coatColor, setCoatColor] = useState(  'color');
-    const [coatLength, setCoatLength] = useState(  'coat length');
-    const [collarType, setCollarType] = useState( 'collar type');
-    const [sleeveLength, setSleeveLength] = useState(  'sleeve length');
-
+    const [designStyle, setDesignStyle] = useState('design style');
+    const [coatType, setCoatType] = useState('coat type');
+    const [coatColor, setCoatColor] = useState('color');
+    const [coatLength, setCoatLength] = useState('coat length');
+    const [collarType, setCollarType] = useState('collar type');
+    const [sleeveLength, setSleeveLength] = useState('sleeve length');
+    const [loading, setLoading] = useState(false);
 
     let detailPrompt = `Rewrite the prompt and add some more lines from you, giving it greater emphasis with more details, to create costume Coat based on this information:- make sure image style will be ${designStyle}, coat type:${coatType}, coat color:${coatColor},coat length:${coatLength}$,coat collar type:${collarType} and sleeves will be ${sleeveLength} and Remember to infuse the avatar with vitality and energy`
     const generateText = async () => {
@@ -27,7 +27,7 @@ const CoatCostume = () => {
                 },
                 {
                     headers: {
-                        'Authorization': `Bearer ${process.env.apiKey}`,
+                        'Authorization': `Bearer ${process.env.NEXT_APP_apiKey_ai}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -215,7 +215,7 @@ const CoatCostume = () => {
                         fontSize: "18px",
                         border: "none",
 
-                    }} >Submit</button>
+                    }} >{loading ? "Generating...!" : "Generate Prompt"}</button>
                 </div>
 
             </div>

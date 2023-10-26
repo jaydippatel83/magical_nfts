@@ -5,38 +5,16 @@ import axios from "axios";
 import { SupercoolAuthContext } from "../../../context/supercoolContext";
 const GamingCharacterFeatures = () => {
     const superCoolContext = React.useContext(SupercoolAuthContext);
-    const { setPrompt } = superCoolContext;
-    const [characterType, setCharacterType] = useState(  'character type');
-    const [clothingStyle, setClothingStyle] = useState(  'clothing style');
-    const [accessories, setAccessories] = useState( 'accessories');
-    const [footwear, setFootwear] = useState( 'footwear');
-    const [hairstyle, setHairstyle] = useState(  'hair style');
-    const [imageStyle, setImageStyle] = useState(  'image style');
-
+    const { setPrompt, generateText, loading } = superCoolContext;
+    const [characterType, setCharacterType] = useState('character type');
+    const [clothingStyle, setClothingStyle] = useState('clothing style');
+    const [accessories, setAccessories] = useState('accessories');
+    const [footwear, setFootwear] = useState('footwear');
+    const [hairstyle, setHairstyle] = useState('hair style');
+    const [imageStyle, setImageStyle] = useState('image style');
 
 
     let detailPrompt = `Rewrite the prompt and add some more lines from you, giving it greater emphasis with more details, to create a Gaming Character based on this prompt:- so create a gaming character who will be ${characterType}, with clothing style:${clothingStyle}, with ${accessories} accessory, with ${footwear} footwear, with ${hairstyle} hair style lastly make sure to generate image with ${imageStyle} and Remember to infuse the avatar with vitality and energy`;
-
-    const generateText = async () => {
-        try {
-            const response = await axios.post(
-                'https://api.openai.com/v1/engines/text-davinci-003/completions',
-                {
-                    prompt: detailPrompt,
-                    max_tokens: 700,
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.apiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            setPrompt(response.data.choices[0].text);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
 
 
     const characterOptionsText = [
@@ -272,12 +250,12 @@ const GamingCharacterFeatures = () => {
                 <div style={{
                     textAlign: "center"
                 }}>
-                    <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={generateText} variant="outlined" style={{
+                    <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={() => generateText(detailPrompt)} variant="outlined" style={{
                         width: "90%",
                         fontSize: "18px",
                         border: "none",
 
-                    }} >Submit</button>
+                    }} >{loading ? "Generating...!" : "Generate Prompt"}</button>
                 </div>
                 {/* <Button onClick={generateText}>Submit</Button> */}
 
