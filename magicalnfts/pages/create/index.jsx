@@ -13,18 +13,17 @@ import ImageModal from "../modal/modal";
 import RendersellNft from "../renderSellNft/renderSellNft";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
-import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction, } from "@solana/web3.js";
+
 import { Metaplex, keypairIdentity } from "@metaplex-foundation/js";
 import * as anchor from "@project-serum/anchor";
 import idl from "../../constant/idl.json";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey"
 import { utf8 } from "@project-serum/anchor/dist/cjs/utils/bytes";
 import { useMemo } from "react";
-import { deriveMagicalNftMetadataPDA, CslSplTokenPDAs } from "solana_magical_mint_nft/dist/pda";
-
-import { getMagicalNftMetadata, initializeClient, mintSendAndConfirm, transferSendAndConfirm } from "solana_magical_mint_nft/dist/rpc";
-
+import { deriveMagicalNftMetadataPDA, CslSplTokenPDAs } from "magical_nfts/dist/pda";
+import { getMagicalNftMetadata, initializeClient, mintSendAndConfirm, transferSendAndConfirm } from "magical_nfts/dist/rpc";
+import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
+import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction, } from "@solana/web3.js";
 import { getMinimumBalanceForRentExemptAccount, getMint, TOKEN_PROGRAM_ID, } from "@solana/spl-token";
 
 
@@ -155,78 +154,122 @@ const Create = () => {
 
 
   const createNft = async () => {
-    const feePayer = publicKey;
-    const programId = "GeeHuDkFx6idRFYu6n2mmc4eUGFKtbnh6WNRS7jT1BVg";
-    const connection = new Connection("https://api.devnet.solana.com", {
-      commitment: "confirmed",
-    });
+    const feePayer = Keypair.fromSeed(publicKey.toBuffer());
+    const programId = "BVDdEviu7f1GzqtvYuV9dQBWft7toFQYM8vFeEHnH7ME";
+    // const connection = new Connection("https://api.devnet.solana.com", {
+    //   commitment: "confirmed",
+    // });
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
-    // const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    console.log(feePayer.publicKey, "feePayer");
     const progId = new PublicKey(programId);
 
     initializeClient(progId, connection);
 
-    const fromWallet = Keypair.generate();
+
+    /**
+     * Create a keypair for the mint
+     */
     const mint = Keypair.generate();
+    console.info("+==== Mint Address  ====+");
+    console.info(mint.publicKey.toBase58());
 
-    const rent = await getMinimumBalanceForRentExemptAccount(connection);
-    const transaction = new Transaction()
-      .add(
-        SystemProgram.createAccount({
-          fromPubkey: feePayer,
-          newAccountPubkey: fromWallet.publicKey,
-          space: 0,
-          lamports: rent,
-          programId: SystemProgram.programId,
-        })
-      );
+    /**
+     * Create two wallets
+     */
+    const johnDoeWallet = Keypair.generate();
+    console.info("+==== John Doe Wallet ====+");
+    console.info(johnDoeWallet.publicKey.toBase58());
 
-    const signers = [feePayer, fromWallet];
-    await sendAndConfirmTransaction(connection, transaction, signers);
+    const janeDoeWallet = Keypair.generate();
+    console.info("+==== Jane Doe Wallet ====+");
+    console.info(janeDoeWallet.publicKey.toBase58());
 
-
-    const [nftMetadata] = deriveMagicalNftMetadataPDA(
+    const [gemPub] = deriveMagicalNftMetadataPDA(
       {
         mint: mint.publicKey,
       },
       progId,
     );
 
-    const [ownerATA] = CslSplTokenPDAs.deriveAccountPDA({
-      wallet: feePayer,
+    const rent = await getMinimumBalanceForRentExemptAccount(connection);
+    await sendAndConfirmTransaction(
+      connection,
+      new Transaction()
+        .add(
+          SystemProgram.createAccount({
+            fromPubkey: feePayer.publicKey,
+            newAccountPubkey: johnDoeWallet.publicKey,
+            space: 0,
+            lamports: rent,
+            programId: SystemProgram.programId,
+          }),
+        )
+        .add(
+          SystemProgram.createAccount({
+            fromPubkey: feePayer.publicKey,
+            newAccountPubkey: janeDoeWallet.publicKey,
+            space: 0,
+            lamports: rent,
+            programId: SystemProgram.programId,
+          }),
+        ),
+      [feePayer, johnDoeWallet, janeDoeWallet],
+    );
+
+    const [johnDoeATA] = CslSplTokenPDAs.deriveAccountPDA({
+      wallet: johnDoeWallet.publicKey,
       mint: mint.publicKey,
       tokenProgram: TOKEN_PROGRAM_ID,
     });
+    console.info("+==== John Doe ATA ====+");
+    console.info(johnDoeATA.toBase58());
 
-    // wallet: feePayer.publicKey,
-    //   assocTokenAccount: johnDoeATA,
-    //   color: "Purple",
-    //   rarity: "Rare",
-    //   shortDescription: "Only possible to collect from the lost temple event",
-    //   signers: {
-    //       feePayer: feePayer,
-    //       funding: feePayer,
-    //       mint: mint,
-    //       owner: johnDoeWallet,
-    //   },
+    const [janeDoeATA] = CslSplTokenPDAs.deriveAccountPDA({
+      wallet: janeDoeWallet.publicKey,
+      mint: mint.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    });
+    console.info("+==== Jane Doe ATA ====+");
+    console.info(janeDoeATA.toBase58());
+
 
     await mintSendAndConfirm({
-      animationUrl: animationUrl,
-      assocTokenAccount: ownerATA,
-      category: category,
-      description: description,
-      externalUrl: externalUrl,
+      animationUrl: "animationUrl",
+      assocTokenAccount: johnDoeATA,
+      category: "category",
+      description: "description",
+      externalUrl: "externalUrl",
       image: "https://superfun.infura-ipfs.io/ipfs/",
-      name: title,
-      symbol: symbol,
-      wallet: feePayer,
+      name: "title",
+      symbol: "symbol",
+      wallet: johnDoeWallet.publicKey,
       signers: {
         feePayer: feePayer,
         funding: feePayer,
         mint: mint,
-        owner: feePayer,
+        owner: johnDoeWallet,
       }
     });
+    console.info("+==== Minted ====+");
+
+    // await mintSendAndConfirm({
+    //   animationUrl: animationUrl,
+    //   assocTokenAccount: ownerATA,
+    //   category: category,
+    //   description: description,
+    //   externalUrl: externalUrl,
+    //   image: "https://superfun.infura-ipfs.io/ipfs/",
+    //   name: title,
+    //   symbol: symbol,
+    //   wallet: feePayer,
+    //   signers: {
+    //     feePayer: feePayer,
+    //     funding: feePayer,
+    //     mint: mint,
+    //     owner: feePayer,
+    //   }
+    // });
 
 
     // Program Id: BVDdEviu7f1GzqtvYuV9dQBWft7toFQYM8vFeEHnH7ME

@@ -41,6 +41,7 @@
     "fs": "^0.0.1-security",
     "ipfs-http-client": "^60.0.0",
     "js-cookie": "^3.0.5",
+    "magical_nfts": "^0.0.1",
     "metamask-react": "^2.4.0",
     "moment": "^2.29.4",
     "next": "12.1.6",
