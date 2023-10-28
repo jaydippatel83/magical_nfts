@@ -3,11 +3,32 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ChainDropdown from "../standardDropdown/chainDropdown";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-const RendersellNft = ({ rendersellNFT, setTitle, setDescription, setPrice, createNft, mintLoading, category, setCategory, chain, setChain }) => {
+const RendersellNft = ({
+    rendersellNFT,
+    setTitle,
+    setDescription,
+    setExternalUrl,
+    setAnimationUrl,
+    setSymbol,
+    setPrice,
+    createNft,
+    mintLoading,
+    category,
+    setCategory,
+    chain,
+    setChain }) => {
     const blockChainOptionsText = [
         {
             id: 1,
-            text: 'Patex Sepolia',
+            text: 'Solana Devnet',
+        },
+        {
+            id: 2,
+            text: 'Solana Testnet',
+        },
+        {
+            id: 3,
+            text: 'Solana Mainnet',
         },
     ];
     const categoryOptionsText = [
@@ -68,18 +89,48 @@ const RendersellNft = ({ rendersellNFT, setTitle, setDescription, setPrice, crea
 
                 <div className="mb-6">
                     <label
-                        htmlFor="Price of NFT"
+                        htmlFor="external"
                         className="font-display text-jacarta-700 mb-2 block dark:text-white"
                     >
-                        Price
+                        External Url
                     </label>
                     <input
-                        onChange={(e) => setPrice(e.target.value)}
-                        type="number"
-                        id="item-name"
+                        onChange={(e) => setExternalUrl(e.target.value)}
+                        type="url"
+                        id="external"
                         className="dark:bg-jacarta-700 border-jacarta-100 hover:ring-accent/10 focus:ring-accent dark:border-jacarta-600 dark:placeholder:text-jacarta-300 w-full rounded-lg py-3 px-3 hover:ring-2 dark:text-white"
-                        placeholder="Item name"
-                        required
+                        placeholder="External Url"
+                    />
+                </div>
+
+                <div className="mb-6">
+                    <label
+                        htmlFor="animation"
+                        className="font-display text-jacarta-700 mb-2 block dark:text-white"
+                    >
+                        Animation Url
+                    </label>
+                    <input
+                        onChange={(e) => setAnimationUrl(e.target.value)}
+                        type="url"
+                        id="animation"
+                        className="dark:bg-jacarta-700 border-jacarta-100 hover:ring-accent/10 focus:ring-accent dark:border-jacarta-600 dark:placeholder:text-jacarta-300 w-full rounded-lg py-3 px-3 hover:ring-2 dark:text-white"
+                        placeholder="Animation Url"
+                    />
+                </div>
+                <div className="mb-6 col-span-4">
+                    <label
+                        htmlFor="symbol"
+                        className="font-display text-jacarta-700 mb-2 block dark:text-white"
+                    >
+                        Symbol(SOL)
+                    </label>
+                    <input
+                        onChange={(e) => setSymbol(e.target.value)}
+                        type="text"
+                        id="symbol"
+                        className="dark:bg-jacarta-700 border-jacarta-100 hover:ring-accent/10 focus:ring-accent dark:border-jacarta-600 dark:placeholder:text-jacarta-300 w-full rounded-lg py-3 px-3 hover:ring-2 dark:text-white"
+                        placeholder="Symbol"
                     />
                 </div>
 
@@ -96,7 +147,7 @@ const RendersellNft = ({ rendersellNFT, setTitle, setDescription, setPrice, crea
                                 dropdownItemText={categoryOptionsText}
                                 state={category}
                                 setState={setCategory}
-                                
+
                             />
                         </div>
                     </div>
@@ -105,7 +156,7 @@ const RendersellNft = ({ rendersellNFT, setTitle, setDescription, setPrice, crea
                             htmlFor="item-supply"
                             className="font-display text-jacarta-700 mb-2 block dark:text-white"
                         >
-                            chain
+                            Network
                         </label>
                         <div className="dropdown relative mb-4 cursor-pointer ">
                             <ChainDropdown
@@ -119,15 +170,20 @@ const RendersellNft = ({ rendersellNFT, setTitle, setDescription, setPrice, crea
 
                 <div className="create-btn">
                     {
-                        mintLoading ? <CircularProgress /> :
+                        mintLoading ?
+                            <button className="bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all"
+                            >
+                                <CircularProgress />
+                            </button>
+                            :
                             <button
                                 onClick={() => createNft()}
                                 className="bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all"
                             >
-                                Create
+                                Mint NFT
                             </button>
                     }
-                            <ToastContainer/>
+                    <ToastContainer />
 
                 </div>
             </div>

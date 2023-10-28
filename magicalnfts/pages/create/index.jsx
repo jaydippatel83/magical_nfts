@@ -13,19 +13,37 @@ import ImageModal from "../modal/modal";
 import RendersellNft from "../renderSellNft/renderSellNft";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
+import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction, } from "@solana/web3.js";
+import { Metaplex, keypairIdentity } from "@metaplex-foundation/js";
+import * as anchor from "@project-serum/anchor";
+import idl from "../../constant/idl.json";
+import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey"
+import { utf8 } from "@project-serum/anchor/dist/cjs/utils/bytes";
+import { useMemo } from "react";
+import { deriveMagicalNftMetadataPDA, CslSplTokenPDAs } from "solana_magical_mint_nft/dist/pda";
+
+import { getMagicalNftMetadata, initializeClient, mintSendAndConfirm, transferSendAndConfirm } from "solana_magical_mint_nft/dist/rpc";
+
+import { getMinimumBalanceForRentExemptAccount, getMint, TOKEN_PROGRAM_ID, } from "@solana/spl-token";
+
 
 const Create = () => {
+  const { publicKey, connected } = useWallet();
+
   const superCoolContext = React.useContext(SupercoolAuthContext);
   const { uploadOnIpfs, loading, provider, setLoading, GenerateNum, prompt, setPrompt, genRanImgLoding, getAllNfts, storeDataInFirebase } = superCoolContext;
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Profile avatar" || category);
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("0.1");
-  const [chain, setChain] = useState("Patex Sepolia" || chain);
+  const [externalUrl, setExternalUrl] = useState("");
+  const [chain, setChain] = useState("Solana Devnet" || chain);
   const [rendersellNFT, setrendersellNFT] = useState(false)
   const [modalOpen, setModalOpen] = useState(false);
   const [generateLoading, setGenerateLoading] = useState(false);
   const [mintLoading, setMintLoading] = useState(false);
+  const [animationUrl, setAnimationUrl] = useState("");
+  const [symbol, setSymbol] = useState("");
 
   const [placeholder, setPlaceholder] = useState(
     "Search a lion with Paint Brushes painting the mona lisa painting..."
@@ -48,7 +66,7 @@ const Create = () => {
       const res = await openai.images.generate({
         prompt: prompt,
         n: 3,
-        size: "1024x1024",
+        size: "512x512",
       });
       setLoading(false);
       let arry = [];
@@ -136,35 +154,134 @@ const Create = () => {
   };
 
 
-  const totalNfts = async () => {
-    const contractPro = new ethers.Contract(
-      GAMESETS_NFT_CONTRACT,
-      abi,
-      provider
-    );
-    const numOfNfts = await contractPro.getTotalSupply();
-    return Number(numOfNfts) + 1;
-  }
-  // totalNfts()
-
   const createNft = async () => {
+    const feePayer = publicKey;
+    const programId = "GeeHuDkFx6idRFYu6n2mmc4eUGFKtbnh6WNRS7jT1BVg";
+    const connection = new Connection("https://api.devnet.solana.com", {
+      commitment: "confirmed",
+    });
 
-    let tokenid = await totalNfts();
-    const nftData = {
-      title: title,
+    // const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    const progId = new PublicKey(programId);
+
+    initializeClient(progId, connection);
+
+    const fromWallet = Keypair.generate();
+    const mint = Keypair.generate();
+
+    const rent = await getMinimumBalanceForRentExemptAccount(connection);
+    const transaction = new Transaction()
+      .add(
+        SystemProgram.createAccount({
+          fromPubkey: feePayer,
+          newAccountPubkey: fromWallet.publicKey,
+          space: 0,
+          lamports: rent,
+          programId: SystemProgram.programId,
+        })
+      );
+
+    const signers = [feePayer, fromWallet];
+    await sendAndConfirmTransaction(connection, transaction, signers);
+
+
+    const [nftMetadata] = deriveMagicalNftMetadataPDA(
+      {
+        mint: mint.publicKey,
+      },
+      progId,
+    );
+
+    const [ownerATA] = CslSplTokenPDAs.deriveAccountPDA({
+      wallet: feePayer,
+      mint: mint.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    });
+
+    // wallet: feePayer.publicKey,
+    //   assocTokenAccount: johnDoeATA,
+    //   color: "Purple",
+    //   rarity: "Rare",
+    //   shortDescription: "Only possible to collect from the lost temple event",
+    //   signers: {
+    //       feePayer: feePayer,
+    //       funding: feePayer,
+    //       mint: mint,
+    //       owner: johnDoeWallet,
+    //   },
+
+    await mintSendAndConfirm({
+      animationUrl: animationUrl,
+      assocTokenAccount: ownerATA,
+      category: category,
       description: description,
-      price: price,
+      externalUrl: externalUrl,
+      image: "https://superfun.infura-ipfs.io/ipfs/",
+      name: title,
+      symbol: symbol,
+      wallet: feePayer,
+      signers: {
+        feePayer: feePayer,
+        funding: feePayer,
+        mint: mint,
+        owner: feePayer,
+      }
+    });
+
+
+    // Program Id: BVDdEviu7f1GzqtvYuV9dQBWft7toFQYM8vFeEHnH7ME
+    // const metadata = {
+    //   name: "Custom NFT #1",
+    //   symbol: "CNFT",
+    //   description: "A description about my custom NFT #1",
+    //   seller_fee_basis_points: 500,
+    //   external_url: "https://www.customnft.com/",
+    //   attributes: [
+    //     {
+    //       trait_type: "NFT type",
+    //       value: "Custom",
+    //     },
+    //   ],
+    //   collection: {
+    //     name: "Test Collection",
+    //     family: "Custom NFTs",
+    //   },
+    //   properties: {
+    //     files: [
+    //       {
+    //         uri: imageUrl,
+    //         type: "image/png",
+    //       },
+    //     ],
+    //     category: "image",
+    //     maxSupply: 0,
+    //     creators: [
+    //       {
+    //         address: "CBBUMHRmbVUck99mTCip5sHP16kzGj3QTYB8K3XxwmQx",
+    //         share: 100,
+    //       },
+    //     ],
+    //   },
+    //   image: imageUrl,
+    // };
+
+    // const metadataRequest = JSON.stringify(metadata);
+    const nftData = {
+      name: title,
+      symbol: symbol,
+      description: description,
       chain: chain,
       image: selectedImage,
+      animation_url: animationUrl,
+      externalUrl: externalUrl,
       category: category,
-      owner: localStorage.getItem('address'),
-      tokenId: tokenid,
+      owner: publicKey.toBase58()
     }
 
     console.log(nftData);
-    setMintLoading(true);
-    let metadataurl = await uploadOnIpfs(nftData);
-    await mintNft(ethers.utils.parseUnits(nftData.price?.toString(), "ether"), metadataurl, nftData);
+    // setMintLoading(true);
+    // let metadataurl = await uploadOnIpfs(nftData);
+    // await mintNft(ethers.utils.parseUnits(nftData.price?.toString(), "ether"), metadataurl, nftData);
   }
 
   function handleSelectedImg(url) {
@@ -237,7 +354,7 @@ const Create = () => {
                         <CircularProgress />
                         :
                         <button
-                          className="bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all  "
+                          className="bg-accent-lighter hover:bg-accent rounded-full py-3 px-8 text-center font-semibold text-white transition-all  "
                           style={{ marginBottom: "15px" }}
                           onClick={generateImage}
                         >
@@ -251,10 +368,10 @@ const Create = () => {
                       images.length > 0 ?
                         <>
                           <div className="row main-row">
-                            {images && images.map((url) => (
+                            {images && images.map((url, i) => (
 
                               <div
-                                className="col-lg-4 mb-4 mb-lg-0"
+                                className="col-lg-4 mb-4 mb-lg-0 cursor-pointer"
                                 onClick={() => handleSelectedImg(url)}
                               >
                                 <div
@@ -267,10 +384,10 @@ const Create = () => {
                                       alt='nft-images'
                                     />
                                   </div>
-                                  <div className="radio-img">
+                                  <div className="radio-img cursor-pointer">
                                     <input
                                       type="radio"
-                                      id="huey"
+                                      id={`huy${i}`}
                                       name="drone"
                                       value="huey"
                                       checked={url == selectedImage}
@@ -292,7 +409,6 @@ const Create = () => {
                     }
 
                   </div>
-
                   {modalOpen &&
                     <div className="img-overlay">
                       <ImageModal setModalOpen={setModalOpen}
@@ -306,10 +422,12 @@ const Create = () => {
 
                 </div>
                 <RendersellNft
-                  rendersellNFT={rendersellNFT}
+                  rendersellNFT={true}
                   setTitle={setTitle}
                   setDescription={setDescription}
-                  setPrice={setPrice}
+                  setExternalUrl={setExternalUrl}
+                  setAnimationUrl={setAnimationUrl}
+                  setSymbol={setSymbol}
                   createNft={createNft}
                   mintLoading={mintLoading}
                   category={category}

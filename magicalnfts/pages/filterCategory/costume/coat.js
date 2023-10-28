@@ -6,7 +6,7 @@ import axios from "axios";
 
 const CoatCostume = () => {
     const superCoolContext = React.useContext(SupercoolAuthContext);
-    const { setPrompt } = superCoolContext;
+    const { setPrompt, generateText } = superCoolContext;
     const [designStyle, setDesignStyle] = useState('design style');
     const [coatType, setCoatType] = useState('coat type');
     const [coatColor, setCoatColor] = useState('color');
@@ -16,27 +16,7 @@ const CoatCostume = () => {
     const [loading, setLoading] = useState(false);
 
     let detailPrompt = `Rewrite the prompt and add some more lines from you, giving it greater emphasis with more details, to create costume Coat based on this information:- make sure image style will be ${designStyle}, coat type:${coatType}, coat color:${coatColor},coat length:${coatLength}$,coat collar type:${collarType} and sleeves will be ${sleeveLength} and Remember to infuse the avatar with vitality and energy`
-    const generateText = async () => {
 
-        try {
-            const response = await axios.post(
-                'https://api.openai.com/v1/engines/text-davinci-003/completions',
-                {
-                    prompt: detailPrompt,
-                    max_tokens: 700,
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.NEXT_APP_apiKey_ai}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            setPrompt(response.data.choices[0].text);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
 
 
 
@@ -210,7 +190,7 @@ const CoatCostume = () => {
                 <div style={{
                     textAlign: "center"
                 }}>
-                    <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={generateText} variant="outlined" style={{
+                    <button color="secondary" className="mb-5 bg-accent-lighter rounded-full py-3 px-8 text-center font-semibold text-white transition-all" onClick={() => generateText(detailPrompt)} variant="outlined" style={{
                         width: "90%",
                         fontSize: "18px",
                         border: "none",
