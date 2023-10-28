@@ -4,14 +4,19 @@ Program Id: BVDdEviu7f1GzqtvYuV9dQBWft7toFQYM8vFeEHnH7ME
 
 **Magical NFTs The magic of AI and the power of blockchain converge. Magical NFTs is the Ai generative NFTs for PFPs, game assets, metaverse avatars, and costumes.**
 
-# Instructions
+# Generate AI NFTs
+It gives you an easy interface to train the AI model to create unique and stunning NFTs using AI. Whether you’re looking for a personalized profile picture, gaming assets like clothes and weapons, etc. Magical NFTs bring a whole new level of interactivity and excitement to the NFT world.
 
 # Mint NFTs: 
-The mint instruction is responsible for creating NFT. This process is essential for introducing new tokens into the system. Based on the inputs we have (regarding color, description, and rarity), we will create gem metadata and mint our NFT.**
- 
-# Transferring NFTs
-Solana Wallet: Make sure the recipient has a Solana wallet to receive the NFT.
+ After generating an image using AI, you'll want to choose which image you want to turn into an NFT. Here's how you can do it:
 
+Select Your Image: Pick the image you want to make into an NFT. It could be a piece of digital art, a picture, or any digital content you like.
+
+Prepare Metadata: You'll need to provide some information about your NFT. This info is called "metadata." It includes things like the NFT's name, a description, and a link to the image. Think of metadata as a label that helps people understand what your NFT is all about.
+
+Mint Your NFT: Once you've got your image and metadata ready, you can turn your image into an NFT. To do this, you'll usually click a button that says "Mint" or "Create NFT."
+ 
+# Transferring NFTs 
 Transfer NFTs: Use your Solana wallet or a Solana NFT marketplace to transfer the NFT to the recipient's wallet. Be cautious with transaction fees.
 
 # Selling NFTs
