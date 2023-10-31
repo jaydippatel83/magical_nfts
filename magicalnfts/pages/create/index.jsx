@@ -71,47 +71,10 @@ const Create = () => {
       let arry = [];
       for (let i = 0; i < res.data.length; i++) {
         const img_url = res.data[i].url;
-        const api = await axios.create({
-          baseURL:
-            "https://open-ai-enwn.onrender.com",
-        });
-        const obj = {
-          url: img_url
-        }
-        let response = await api
-          .post("/image", obj)
-          .then((res) => {
-            return res;
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-        const arr = new Uint8Array(response.data.data);
-        const blob = new Blob([arr], { type: 'image/jpeg' });
-        const imageFile = new File(
-          [blob],
-          `data.png`,
-          {
-            type: "image/jpeg",
-          }
-        );
-        const metadata = await client.store({
-          name: "data",
-          description: "data",
-          image: imageFile
-        });
-        const imUrl = `https://ipfs.io/ipfs/${metadata.ipnft}/metadata.json`;
-        console.log(imUrl, "imUrl");
-        const data = (await axios.get(imUrl)).data;
-        const rep = data.image.replace(
-          "ipfs://",
-          "https://superfun.infura-ipfs.io/ipfs/"
-        );
-        arry.push(rep);
+        arry.push(img_url);
       }
-      setImages(res.data);
+      setImages(arry);
       setGenerateLoading(false);
-
     } catch (error) {
       toast.error(`Error generating image: ${error}`);
       setGenerateLoading(false);
@@ -195,10 +158,46 @@ const Create = () => {
 
   }
 
-  function handleSelectedImg(url) {
+  async function handleSelectedImg(img_url) {
     setrendersellNFT(false);
-    setSelectedImage(url);
     setModalOpen(true);
+    const api = await axios.create({
+      baseURL:
+        "https://open-ai-enwn.onrender.com",
+    });
+    const obj = {
+      url: img_url
+    }
+    let response = await api
+      .post("/image", obj)
+      .then((res) => {
+        return res;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    const arr = new Uint8Array(response.data.data);
+    const blob = new Blob([arr], { type: 'image/jpeg' });
+    const imageFile = new File(
+      [blob],
+      `data.png`,
+      {
+        type: "image/jpeg",
+      }
+    );
+    const metadata = await client.store({
+      name: "data",
+      description: "data",
+      image: imageFile
+    });
+    const imUrl = `https://ipfs.io/ipfs/${metadata.ipnft}/metadata.json`;
+    console.log(imUrl, "imUrl");
+    const data = (await axios.get(imUrl)).data;
+    const rep = data.image.replace(
+      "ipfs://",
+      "https://superfun.infura-ipfs.io/ipfs/"
+    );
+    setSelectedImage(rep);
   }
 
   return (
@@ -280,8 +279,8 @@ const Create = () => {
                         <>
                           <div className="row main-row">
                             {images && images.map((url, i) => (
-
                               <div
+                                key={i}
                                 className="col-lg-4 mb-4 mb-lg-0 cursor-pointer"
                                 onClick={() => handleSelectedImg(url)}
                               >
@@ -333,12 +332,13 @@ const Create = () => {
 
                 </div>
                 <RendersellNft
-                  rendersellNFT={true}
+                  rendersellNFT={rendersellNFT}
                   setTitle={setTitle}
                   setDescription={setDescription}
                   setExternalUrl={setExternalUrl}
                   setAnimationUrl={setAnimationUrl}
                   setSymbol={setSymbol}
+                  selectedImage={selectedImage}
                   createNft={createNfts}
                   mintLoading={mintLoading}
                   category={category}

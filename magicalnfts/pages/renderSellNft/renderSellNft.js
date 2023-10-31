@@ -10,6 +10,7 @@ const RendersellNft = ({
     setExternalUrl,
     setAnimationUrl,
     setSymbol,
+    selectedImage,
     setPrice,
     createNft,
     mintLoading,
