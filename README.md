@@ -1,19 +1,50 @@
 Program Id: BVDdEviu7f1GzqtvYuV9dQBWft7toFQYM8vFeEHnH7ME
 
-## Magical NFTs on Solana 
+## Creating AI Generative NFTs on Solana
 
 **Magical NFTs The magic of AI and the power of blockchain converge. Magical NFTs is the Ai generative NFTs for PFPs, game assets, metaverse avatars, and costumes.**
 
-# Instructions
+# Generate AI NFTs
+It gives you an easy interface to train the AI model to create unique and stunning NFTs using AI. Whether you’re looking for a personalized profile picture, gaming assets like clothes and weapons, etc. Magical NFTs bring a whole new level of interactivity and excitement to the NFT world.
 
-**1. Mint:  The mint instruction is responsible for creating NFT. This process is essential for introducing new tokens into the system. Based on the inputs we have (regarding color, description, and rarity), we will create gem metadata and mint our NFT.**
+# Mint NFTs: 
+ After generating an image using AI, you'll want to choose which image you want to turn into an NFT. Here's how you can do it:
 
-**2. Transfer: The transfer instruction allows tokens or NFTs to be sent from one account to another.** 
+Select Your Image: Pick the image you want to make into an NFT. It could be a piece of digital art, a picture, or any digital content you like.
+
+Prepare Metadata: You'll need to provide some information about your NFT. This info is called "metadata." It includes things like the NFT's name, a description, and a link to the image. Think of metadata as a label that helps people understand what your NFT is all about.
+
+Mint Your NFT: Once you've got your image and metadata ready, you can turn your image into an NFT. To do this, you'll usually click a button that says "Mint" or "Create NFT."
+ 
+# Transferring NFTs 
+Transfer NFTs: Use your Solana wallet or a Solana NFT marketplace to transfer the NFT to the recipient's wallet. Be cautious with transaction fees.
+
+# Selling NFTs
+**List NFTs:** You can list your NFTs on Solana NFT marketplaces like (Solsea)[https://solsea.io/] or (Magic Eden)[https://magiceden.io/]. Follow the specific marketplace's instructions for listing your NFTs.
+
+**Set Price:** Specify the price for each NFT and follow the marketplace's guidelines for setting up auctions or direct sales. 
 
 # Homepage
+<img width="1280" alt="Screenshot 2023-10-28 at 1 36 48 PM" src="https://github.com/jaydippatel83/magical_nfts/assets/45895007/ef4c988e-a2c4-4411-b0c4-d83b865a3c01">
 
- 
-# This is the magicalnfts yaml file
+# Connect Wallet 
+<img width="1280" alt="Screenshot 2023-10-28 at 1 36 38 PM" src="https://github.com/jaydippatel83/magical_nfts/assets/45895007/3894621e-dc02-4966-84de-81a072b70cca">
+
+# Create NFTs
+<img width="1280" alt="Screenshot 2023-10-28 at 1 37 21 PM" src="https://github.com/jaydippatel83/magical_nfts/assets/45895007/4530c584-4c87-4264-af33-9bc6f444a276">
+
+# Generate AI NFTS 
+<img width="1279" alt="Screenshot 2023-10-28 at 1 40 01 PM" src="https://github.com/jaydippatel83/magical_nfts/assets/45895007/e94ee240-6a9c-4167-8d5c-1c980633754c">
+
+# MInt NFTS
+
+<img width="1280" alt="Screenshot 2023-10-28 at 1 40 10 PM" src="https://github.com/jaydippatel83/magical_nfts/assets/45895007/f02cad23-ec5a-4ae0-9b22-7435dfdef3aa">
+
+# Profile page
+
+ <img width="1280" alt="Screenshot 2023-10-28 at 1 40 54 PM" src="https://github.com/jaydippatel83/magical_nfts/assets/45895007/58c19052-47ed-4c1f-a1e5-4e007228e87f">
+
+# This is the Magicalnfts yaml file
 
 ```yaml
 
