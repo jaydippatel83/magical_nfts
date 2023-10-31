@@ -1,4 +1,4 @@
-import React, { useState, createContext, useEffect, useRef } from "react";
+import React, { useState, createContext, useEffect, useRef, useMemo } from "react";
 import { Buffer } from 'buffer';
 import { create } from 'ipfs-http-client';
 import { ethers } from 'ethers';
@@ -6,6 +6,14 @@ import { RandomPrompts } from "../components/RandomImgs";
 import axios from 'axios';
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
+import * as anchor from "@project-serum/anchor";
+import { useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { PublicKey, SystemProgram } from "@solana/web3.js";
+import idl from '../constant/idl.json'
+import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
+import { utf8 } from "@project-serum/anchor/dist/cjs/utils/bytes";
+
+
 export const SupercoolAuthContext = createContext(undefined);
 
 export const SupercoolAuthContextProvider = (props) => {
@@ -17,8 +25,36 @@ export const SupercoolAuthContextProvider = (props) => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [profileData, setProfileData] = useState([]);
+  const [nftData, setNftData] = useState();
   const [loading, setLoading] = useState(false);
 
+  const PROGRAM_KEY = new PublicKey(idl.metadata.address);
+  const anchorWallet = useAnchorWallet();
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
+
+  const program = useMemo(() => {
+    if (anchorWallet) {
+      const provider = new anchor.AnchorProvider(connection, anchorWallet, anchor.AnchorProvider.defaultOptions);
+      return new anchor.Program(idl, PROGRAM_KEY, provider);
+    }
+  }, [collection, anchorWallet])
+
+
+  useEffect(() => {
+    const start = async () => {
+      if (program && publicKey) {
+        try {
+          const [nftPda] = await findProgramAddressSync([utf8.encode('nft'), publicKey.toBuffer()], program.programId);
+          setNftData(nftData);
+          console.log(nftData, "nftData");
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+    start()
+  }, [])
   useEffect(() => {
     getSignerFromProvider();
   }, [])
@@ -120,7 +156,7 @@ export const SupercoolAuthContextProvider = (props) => {
   const auth =
     "Basic " +
     Buffer.from(
-      process.env.infuraProjectKey + ":" + process.env.infuraSecretKey
+      process.env.NEXT_APP_infuraProjectKey + ":" + process.env.NEXT_APP_infuraSecretKey
     ).toString("base64");
 
   const client = create({
@@ -228,6 +264,8 @@ export const SupercoolAuthContextProvider = (props) => {
         UserProfileRef,
         db,
         walletConnected,
+        nftData,
+        program
       }}
       {...props}
     >

@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import "tippy.js/dist/tippy.css"; // optional
 import Meta from "../../components/Meta";
 import OpenAI from "openai";
-import { GAMESETS_NFT_CONTRACT, abi } from "../../constant/constant";
-import { ethers } from "ethers";
 import { SupercoolAuthContext } from "../../context/supercoolContext";
 import { NFTStorage, File } from 'nft.storage'
 import axios from "axios";
@@ -25,13 +23,15 @@ import { getMagicalNftMetadata, initializeClient, mintSendAndConfirm, transferSe
 import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction, } from "@solana/web3.js";
 import { getMinimumBalanceForRentExemptAccount, getMint, TOKEN_PROGRAM_ID, } from "@solana/spl-token";
+import { collection } from "@firebase/firestore";
+
 
 
 const Create = () => {
   const { publicKey, connected } = useWallet();
 
   const superCoolContext = React.useContext(SupercoolAuthContext);
-  const { uploadOnIpfs, loading, provider, setLoading, GenerateNum, prompt, setPrompt, genRanImgLoding, getAllNfts, storeDataInFirebase } = superCoolContext;
+  const { uploadOnIpfs, loading, provider, setLoading, GenerateNum, prompt, setPrompt, genRanImgLoding, getAllNfts, storeDataInFirebase, program, db } = superCoolContext;
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Profile avatar" || category);
   const [description, setDescription] = useState("");
@@ -109,7 +109,7 @@ const Create = () => {
         );
         arry.push(rep);
       }
-      setImages(arry);
+      setImages(res.data);
       setGenerateLoading(false);
 
     } catch (error) {
@@ -118,197 +118,63 @@ const Create = () => {
     }
   };
 
-  const mintNft = async (_price, _metadataurl, _metaData) => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
 
-    const contract = new ethers.Contract(
-      GAMESETS_NFT_CONTRACT,
-      abi,
-      signer
-    );
-
-    try {
-      const tx = await contract.mintNFT(_price, _metadataurl);
-      const receipt = await tx.wait();
-
-      if (receipt.status === 1) {
-        toast("NFT Minted Sucessfully 🎉!!");
-        await storeDataInFirebase(_metaData);
-      } else {
-        console.log("Transaction failed:");
-      }
-
-    } catch (e) {
-      console.error("Failed to mint NFT: " + e.message);
-    }
-    await getAllNfts()
-    setLoading(!loading);
-    setMintLoading(false);
-    setImages([]);
-    setTitle('');
-    setDescription('');
-    setPrice('');
-    setrendersellNFT(false);
-  };
-
-
-  const createNft = async () => {
+  const createNfts = async () => {
+    setMintLoading(true);
     const feePayer = Keypair.fromSeed(publicKey.toBuffer());
-    const programId = "BVDdEviu7f1GzqtvYuV9dQBWft7toFQYM8vFeEHnH7ME";
-    // const connection = new Connection("https://api.devnet.solana.com", {
-    //   commitment: "confirmed",
-    // });
-    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    const connection = new Connection(
+      clusterApiUrl('devnet'),
+      'confirmed'
+    );
 
-    console.log(feePayer.publicKey, "feePayer");
-    const progId = new PublicKey(programId);
+    const metaplex = new Metaplex(connection);
+    metaplex.use(keypairIdentity(feePayer));
 
-    initializeClient(progId, connection);
-
-
-    /**
-     * Create a keypair for the mint
-     */
-    const mint = Keypair.generate();
-    console.info("+==== Mint Address  ====+");
-    console.info(mint.publicKey.toBase58());
-
-    /**
-     * Create two wallets
-     */
-    const johnDoeWallet = Keypair.generate();
-    console.info("+==== John Doe Wallet ====+");
-    console.info(johnDoeWallet.publicKey.toBase58());
-
-    const janeDoeWallet = Keypair.generate();
-    console.info("+==== Jane Doe Wallet ====+");
-    console.info(janeDoeWallet.publicKey.toBase58());
-
-    const [gemPub] = deriveMagicalNftMetadataPDA(
-      {
-        mint: mint.publicKey,
+    const metadata = {
+      name: title,
+      symbol: symbol,
+      description: description,
+      seller_fee_basis_points: 500,
+      external_url: externalUrl,
+      animationUrl: animationUrl,
+      attributes: [
+        {
+          trait_type: "NFT type",
+          value: "Custom",
+        },
+      ],
+      collection: {
+        name: "Test Collection",
+        family: "Custom NFTs",
       },
-      progId,
-    );
+      properties: {
+        files: [
+          {
+            uri: selectedImage,
+            type: "image/png",
+          },
+        ],
+        category: "image",
+        maxSupply: 1,
+        creators: [
+          {
+            address: publicKey.toBase58(),
+            share: 100,
+          },
+        ],
+      },
+      image: selectedImage,
+    };
 
-    const rent = await getMinimumBalanceForRentExemptAccount(connection);
-    await sendAndConfirmTransaction(
-      connection,
-      new Transaction()
-        .add(
-          SystemProgram.createAccount({
-            fromPubkey: feePayer.publicKey,
-            newAccountPubkey: johnDoeWallet.publicKey,
-            space: 0,
-            lamports: rent,
-            programId: SystemProgram.programId,
-          }),
-        )
-        .add(
-          SystemProgram.createAccount({
-            fromPubkey: feePayer.publicKey,
-            newAccountPubkey: janeDoeWallet.publicKey,
-            space: 0,
-            lamports: rent,
-            programId: SystemProgram.programId,
-          }),
-        ),
-      [feePayer, johnDoeWallet, janeDoeWallet],
-    );
 
-    const [johnDoeATA] = CslSplTokenPDAs.deriveAccountPDA({
-      wallet: johnDoeWallet.publicKey,
-      mint: mint.publicKey,
-      tokenProgram: TOKEN_PROGRAM_ID,
+    let metadataurl = await uploadOnIpfs(metadata);
+    const mintNFTResponse = await metaplex.nfts().create({
+      uri: metadataurl,
+      maxSupply: 1,
+      name: title,
+      symbol: symbol
     });
-    console.info("+==== John Doe ATA ====+");
-    console.info(johnDoeATA.toBase58());
-
-    const [janeDoeATA] = CslSplTokenPDAs.deriveAccountPDA({
-      wallet: janeDoeWallet.publicKey,
-      mint: mint.publicKey,
-      tokenProgram: TOKEN_PROGRAM_ID,
-    });
-    console.info("+==== Jane Doe ATA ====+");
-    console.info(janeDoeATA.toBase58());
-
-
-    await mintSendAndConfirm({
-      animationUrl: "animationUrl",
-      assocTokenAccount: johnDoeATA,
-      category: "category",
-      description: "description",
-      externalUrl: "externalUrl",
-      image: "https://superfun.infura-ipfs.io/ipfs/",
-      name: "title",
-      symbol: "symbol",
-      wallet: johnDoeWallet.publicKey,
-      signers: {
-        feePayer: feePayer,
-        funding: feePayer,
-        mint: mint,
-        owner: johnDoeWallet,
-      }
-    });
-    console.info("+==== Minted ====+");
-
-    // await mintSendAndConfirm({
-    //   animationUrl: animationUrl,
-    //   assocTokenAccount: ownerATA,
-    //   category: category,
-    //   description: description,
-    //   externalUrl: externalUrl,
-    //   image: "https://superfun.infura-ipfs.io/ipfs/",
-    //   name: title,
-    //   symbol: symbol,
-    //   wallet: feePayer,
-    //   signers: {
-    //     feePayer: feePayer,
-    //     funding: feePayer,
-    //     mint: mint,
-    //     owner: feePayer,
-    //   }
-    // });
-
-
-    // Program Id: BVDdEviu7f1GzqtvYuV9dQBWft7toFQYM8vFeEHnH7ME
-    // const metadata = {
-    //   name: "Custom NFT #1",
-    //   symbol: "CNFT",
-    //   description: "A description about my custom NFT #1",
-    //   seller_fee_basis_points: 500,
-    //   external_url: "https://www.customnft.com/",
-    //   attributes: [
-    //     {
-    //       trait_type: "NFT type",
-    //       value: "Custom",
-    //     },
-    //   ],
-    //   collection: {
-    //     name: "Test Collection",
-    //     family: "Custom NFTs",
-    //   },
-    //   properties: {
-    //     files: [
-    //       {
-    //         uri: imageUrl,
-    //         type: "image/png",
-    //       },
-    //     ],
-    //     category: "image",
-    //     maxSupply: 0,
-    //     creators: [
-    //       {
-    //         address: "CBBUMHRmbVUck99mTCip5sHP16kzGj3QTYB8K3XxwmQx",
-    //         share: 100,
-    //       },
-    //     ],
-    //   },
-    //   image: imageUrl,
-    // };
-
-    // const metadataRequest = JSON.stringify(metadata);
+    const { mintAddress } = mintNFTResponse;
     const nftData = {
       name: title,
       symbol: symbol,
@@ -318,13 +184,15 @@ const Create = () => {
       animation_url: animationUrl,
       externalUrl: externalUrl,
       category: category,
-      owner: publicKey.toBase58()
+      owner: publicKey.toBase58(),
+      mintAddress: mintAddress
     }
+    const nftRef = collection(db, "magicalNFTs");
+    const docRef = await addDoc(nftRef, nftData);
+    console.log(docRef, "docRef");
+    toast.success("NFT Successfully minted!");
+    setMintLoading(false);
 
-    console.log(nftData);
-    // setMintLoading(true);
-    // let metadataurl = await uploadOnIpfs(nftData);
-    // await mintNft(ethers.utils.parseUnits(nftData.price?.toString(), "ether"), metadataurl, nftData);
   }
 
   function handleSelectedImg(url) {
@@ -457,7 +325,7 @@ const Create = () => {
                       <ImageModal setModalOpen={setModalOpen}
                         selectedImage={selectedImage}
                         setSelectedImage={setSelectedImage}
-                        createNft={createNft}
+                        createNft={createNfts}
                         setrendersellNFT={setrendersellNFT}
                       />
                     </div>
@@ -471,7 +339,7 @@ const Create = () => {
                   setExternalUrl={setExternalUrl}
                   setAnimationUrl={setAnimationUrl}
                   setSymbol={setSymbol}
-                  createNft={createNft}
+                  createNft={createNfts}
                   mintLoading={mintLoading}
                   category={category}
                   setCategory={setCategory}
