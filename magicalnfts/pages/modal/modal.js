@@ -1,3 +1,4 @@
+import { CircularProgress } from "@mui/material";
 import { useState } from "react"
 
 const ImageModal = ({ setModalOpen, selectedImage, setSelectedImage, setrendersellNFT }) => {
@@ -34,8 +35,11 @@ const ImageModal = ({ setModalOpen, selectedImage, setSelectedImage, setrenderse
                                 <path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"></path>
                             </svg>
                         </button>
-                        <div className="img-container">
-                            {selectedImage && <img height="200px" width="400px" src={selectedImage} alt="imgg" />}
+                        <div className="img-container text-center">
+                            {selectedImage ?
+                                <img height="200px" width="400px" src={selectedImage} alt="imgg" /> :
+                                <CircularProgress className="" />
+                            }
                         </div>
 
 

@@ -50,6 +50,7 @@ const Create = () => {
 
   const [images, setImages] = React.useState([]);
   const [selectedImage, setSelectedImage] = React.useState(null);
+  const [modalImg, setModalImg] = React.useState();
 
 
   const NFT_STORAGE_TOKEN = process.env.NEXT_APP_NFT_STORAGE;
@@ -159,6 +160,7 @@ const Create = () => {
   }
 
   async function handleSelectedImg(img_url) {
+    setModalImg(img_url)
     setrendersellNFT(false);
     setModalOpen(true);
     const api = await axios.create({
@@ -322,8 +324,8 @@ const Create = () => {
                   {modalOpen &&
                     <div className="img-overlay">
                       <ImageModal setModalOpen={setModalOpen}
-                        selectedImage={selectedImage}
-                        setSelectedImage={setSelectedImage}
+                        selectedImage={modalImg}
+                        setSelectedImage={setModalImg}
                         createNft={createNfts}
                         setrendersellNFT={setrendersellNFT}
                       />
